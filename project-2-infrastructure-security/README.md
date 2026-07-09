@@ -2,6 +2,8 @@
 
 ## Objective
 The objective of this project was to architect a secure, resilient, and segmented enterprise network environment. The focus was on implementing strict access controls, identity management, and secure remote connectivity using industry-standard tools.
+**Network Topology:**
+![Topology](screenshots/topology.png)
 
 ## Architecture & Technologies Used
 *   **Perimeter Defense:** pfSense Next-Generation Firewall (NGFW)
@@ -22,6 +24,8 @@ The objective of this project was to architect a secure, resilient, and segmente
     *   Minimum password complexity of 12+ characters.
     *   Account lockout thresholds (e.g., lock after 3 failed attempts) to mitigate brute-force attacks.
     *   Centralized NTP synchronization to ensure temporal accuracy for forensic logging.
+**Active Directory Structure:**
+![AD Users](screenshots/ad-users.png)
 
 ### 3. Secure Remote Connectivity
 *   Deployed an OpenVPN server on the pfSense perimeter.
@@ -30,7 +34,8 @@ The objective of this project was to architect a secure, resilient, and segmente
 ## Defensive Validation
 To ensure the infrastructure was properly hardened, I conducted validation testing from an isolated Kali Linux machine:
 *   **Nmap Scanning:** Executed -sS (Stealth SYN) and -Pn (No Ping) scans to verify that firewall drop rules were successfully masking internal assets and that unauthorized subnets were unreachable.
-*(Insert Screenshot of Kali Linux terminal showing blocked scan results or pfSense firewall drop logs here)*
+**Offensive Validation:**
+![Kali Blocked](screenshots/kali-port-forwarding.png)
 
 ## Challenges & Lessons Learned
 *   **GPO Troubleshooting:** Learned how to use `gpupdate /force` and `rsop.msc` to troubleshoot policies that weren't applying correctly to the client VMs.
