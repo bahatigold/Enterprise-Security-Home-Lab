@@ -20,8 +20,11 @@ The goal of this project was to build a centralized security monitoring environm
 To validate the defensive setup, I simulated an attack from a Kali Linux machine:
 1.  **The Attack:** Executed an `nmap -sS -Pn` stealth scan against the internal network.
 2.  **The Detection:** Suricata captured the signature, and Wazuh successfully generated a critical alert on the dashboard.
-*(Insert Screenshot of the Wazuh alert here)*
+**Wazuh Detection Alert:**
+![Wazuh Alert](screenshots/wazuh-pfsense-logs.png)
 
+**Suricata IDS Output:**
+![Suricata Alert](screenshots/eve-output-set.png)
 ## Lessons Learned
 *   Gained hands-on experience tuning IDS rules to reduce false positives.
 *   Learned how to correlate firewall drop logs with endpoint security events to build a complete picture of an attack.
