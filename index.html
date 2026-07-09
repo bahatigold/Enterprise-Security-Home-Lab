@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Security Lab Dashboard</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --sidebar-width: 260px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex; height: 100vh; overflow: hidden; font-size: 14px;
+        }
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-width); background-color: #020617;
+            border-right: 1px solid var(--border); display: flex; flex-direction: column;
+            padding: 15px; overflow-y: auto; flex-shrink: 0;
+        }
+        .profile-section {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+            padding-bottom: 15px; border-bottom: 1px solid var(--border);
+        }
+        .avatar {
+            width: 40px; height: 40px; background-color: var(--accent);
+            color: #0f172a; border-radius: 8px; display: flex;
+            align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;
+        }
+        .nav-item {
+            padding: 10px 12px; border-radius: 6px; cursor: pointer; color: var(--text-muted);
+            font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; transition: 0.2s;
+        }
+        .nav-item:hover { background-color: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-item.active { background-color: rgba(56, 189, 248, 0.15); color: var(--accent); }
+
+        /* MAIN CONTENT */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; background-color: #0f172a; }
+        .header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+            padding-bottom: 15px; border-bottom: 1px solid var(--border);
+        }
+        .header h1 { font-size: 1.6rem; font-weight: 600; letter-spacing: -0.5px; }
+        .badge {
+            background-color: rgba(56, 189, 248, 0.2); color: var(--accent);
+            padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;
+        }
+
+        /* GRID & CARDS */
+        .section { display: none; animation: fadeIn 0.2s ease-in-out; }
+        .section.active { display: block; }
+        .dashboard-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 20px;
+        }
+        .full-width { grid-column: 1 / -1; }
+        .card {
+            background-color: var(--bg-panel); border: 1px solid var(--border);
+            border-radius: 8px; padding: 20px; display: flex; flex-direction: column;
+        }
+        .card h2 {
+            font-size: 1rem; margin-bottom: 10px; color: var(--text-main);
+            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+        }
+        .card p { color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; font-size: 0.9rem; }
+        .card ul { margin-left: 20px; margin-bottom: 10px; color: var(--text-muted); font-size: 0.9rem; }
+
+        /* IMAGES & ZONES */
+        .upload-zone {
+            border: 1px solid var(--border); background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 6px; padding: 10px; text-align: center; margin-top: 5px;
+        }
+        .upload-zone img {
+            max-width: 100%; max-height: 350px; border-radius: 4px; border: 1px solid #333;
+        }
+        .img-caption { font-size: 0.8rem; font-style: italic; color: #64748b; margin-top: 5px; display: block; }
+
+        /* TABLE & CODE */
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 5px; }
+        th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+        th { color: var(--text-main); font-weight: 600; background-color: rgba(255,255,255,0.03); }
+        .code-block {
+            background-color: #020617; border: 1px solid var(--border); border-radius: 4px; padding: 10px;
+            font-family: monospace; font-size: 0.8rem; color: #a5b4fc; overflow-x: auto; white-space: pre-wrap; margin-bottom: 10px;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="profile-section">
+            <div class="avatar">BG</div>
+            <div style="margin-left: 10px;">
+                <h3 style="font-size:0.95rem; margin:0; color:white;">Bahati Gold</h3>
+                <p style="font-size:0.75rem; margin:0; color:#94a3b8;">Security Engineer</p>
+            </div>
+        </div>
+        <div class="nav-links">
+            <div class="nav-item active" onclick="showTab('home')">1. Overview</div>
+            <div class="nav-item" onclick="showTab('pfsense')">2. pfSense & Network</div>
+            <div class="nav-item" onclick="showTab('windows')">3. Active Directory</div>
+            <div class="nav-item" onclick="showTab('linux')">4. Linux Services</div>
+            <div class="nav-item" onclick="showTab('vpn')">5. VPN Access</div>
+            <div class="nav-item" onclick="showTab('wazuh')">6. Security (Wazuh)</div>
+            <div class="nav-item" onclick="showTab('ids')">7. IDS (Suricata)</div>
+            <div class="nav-item" onclick="showTab('kali')">8. Pentest (Kali)</div>
+            <div class="nav-item" onclick="showTab('filtering')">9. Web Filter & ARP</div>
+            <div class="nav-item" onclick="showTab('backup')">10. Backup</div>
+            <div class="nav-item" onclick="showTab('summary')">11. Summary</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Project Documentation <span style="color:var(--text-muted); font-weight:400;">// Home Lab</span></h1>
+            <span class="badge">Status: Complete</span>
+        </div>
+
+        <div id="home" class="section active">
+            <div class="dashboard-grid">
+                <div class="card full-width">
+                    <h2>Executive Summary</h2>
+                    <p>This project implements a secure, segmented enterprise network environment. The architecture separates critical infrastructure (LAN1) from client workstations (LAN2), managed by a pfSense firewall. Key security features include centralized Active Directory authentication, Suricata IDS, Wazuh SIEM monitoring, and strict firewall policies.</p>
+                </div>
+                <div class="card">
+                    <h2>Network Topology</h2>
+                    <p>Visual representation of the segmented network (LAN1/LAN2).</p>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/topology.png" alt="Topology"><span class="img-caption">Figure 1: Network Topology Diagram</span></div>
+                </div>
+                <div class="card">
+                    <h2>IP Allocation Table</h2>
+                    <table>
+                        <thead><tr><th>Role</th><th>Hostname</th><th>IP Address</th></tr></thead>
+                        <tbody>
+                            <tr><td>Gateway</td><td>PF-28497</td><td>192.168.1.1 / 2.1</td></tr>
+                            <tr><td>DC / DNS</td><td>AD-28497</td><td>192.168.1.2</td></tr>
+                            <tr><td>Linux Svr</td><td>LS-28497</td><td>192.168.1.3</td></tr>
+                            <tr><td>Wazuh SIEM</td><td>WS-28497</td><td>192.168.1.4</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="upload-zone" style="margin-top:15px;"><img src="project-2-infrastructure-security/screenshots/vm-list.png" alt="VM Inventory"><span class="img-caption">Virtual Machine Inventory</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pfsense" class="section">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Task 1: Interfaces & DHCP</h2>
+                    <p>Interfaces are assigned to physically separate segments. DHCP is configured on pfSense strictly for LAN2 (Clients), while LAN1 uses the Linux DHCP.</p>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/pfsense-interfaces.png"><span class="img-caption">Interface Assignments</span></div>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/pfsense-dhcp.png"><span class="img-caption">DHCP Scope (LAN2)</span></div>
+                </div>
+                <div class="card">
+                    <h2>Security Rules & Captive Portal</h2>
+                    <p><strong>Captive Portal:</strong> Disabled to ensure seamless traffic flow.</p>
+                    <p><strong>Firewall Rules:</strong> Strict rules control traffic between LANs.</p>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/captive-portal-disabled.png"><span class="img-caption">Proof: No Zones Defined</span></div>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/firewall-rules.png"><span class="img-caption">Firewall Ruleset</span></div>
+                </div>
+                <div class="card full-width">
+                    <h2>Monitoring & Scheduling</h2>
+                    <p>Schedules are used to restrict Kali Pentests (1 hour window) and block Social Media during work hours. NTOPng provides real-time traffic analysis.</p>
+                    <div class="dashboard-grid">
+                        <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/schedules.png"><span class="img-caption">Time Schedules</span></div>
+                        <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/ntopng-dashboard.png"><span class="img-caption">NTOPng Traffic Dashboard</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="windows" class="section">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Task 2: Active Directory Structure</h2>
+                    <p>The domain is organized into OUs (IT, HR, Students, Finance). Each OU contains specific user accounts governed by GPOs.</p>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/ad-users.png"><span class="img-caption">AD Users & Computers</span></div>
+                </div>
+                <div class="card">
+                    <h2>Group Policy Objects (GPO)</h2>
+                    <p>Policies enforced:</p>
+                    <ul>
+                        <li><strong>Roaming Profiles:</strong> Centralized user data on DC.</li>
+                        <li><strong>Mapped Drive (Z:):</strong> Auto-mounted shared storage.</li>
+                        <li><strong>Password Policy:</strong> Min length 12, complexity enabled.</li>
+                        <li><strong>NTP:</strong> Clients sync time with DC.</li>
+                    </ul>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/gpo-list.png"><span class="img-caption">GPO Management</span></div>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/ntp-gpo.png"><span class="img-caption">NTP Configuration</span></div>
+                </div>
+                <div class="card full-width">
+                    <h2>Client Verification</h2>
+                    <div class="dashboard-grid">
+                        <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/gpresult.png"><span class="img-caption">gpresult /r Output</span></div>
+                        <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/iis-portfolio.png"><span class="img-caption">IIS Portfolio Website</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="linux" class="section">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Task 3: DHCP Service (LAN1)</h2>
+                    <p>The Linux server acts as the DHCP provider for the Server Segment (LAN1). This ensures critical infrastructure management is separated from client DHCP.</p>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/linux-dhcp-status.png"><span class="img-caption">Service Status: Active</span></div>
+                </div>
+                <div class="card">
+                    <h2>Web Server & Wazuh Agent</h2>
+                    <p>This documentation site is hosted via Apache. The Wazuh agent monitors the web directory for unauthorized file changes.</p>
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/linux-wazuh-agent.png"><span class="img-caption">Agent Status</span></div>
+                </div>
+                
+                <div class="card full-width">
+                    <h2>Linux Services Verification</h2>
+                    <p>We have successfully configured and tested remote access (SSH), file sharing (Samba), and file transfer (FTP) services on the Linux server.</p>
+                    <div class="dashboard-grid">
+                        <div class="upload-zone">
+                            <img src="project-2-infrastructure-security/screenshots/ssh-proof.png" alt="SSH Connection">
+                            <span class="img-caption">Figure: Successful SSH Connection from Windows Client</span>
+                        </div>
+                        <div class="upload-zone">
+                            <img src="project-2-infrastructure-security/screenshots/samba-proof.png" alt="Samba Share">
+                            <span class="img-caption">Figure: Samba Share Directory and Test File</span>
+                        </div>
+                        <div class="upload-zone">
+                            <img src="project-2-infrastructure-security/screenshots/ftp-proof.png" alt="FTP Connection">
+                            <span class="img-caption">Figure: FTP Login and File Listing</span>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+
+        <div id="vpn" class="section">
+            <div class="card full-width">
+                <h2>Task 7: OpenVPN Remote Access</h2>
+                <p>A secure VPN tunnel allows remote IT users to access LAN1 resources. Authentication is handled via Certificates issued by the pfSense CA.</p>
+                
+                <div class="dashboard-grid">
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/vpn-cert.png"><span class="img-caption">Certificate Manager</span></div>
+                    <div class="upload-zone">
+                         <img src="project-2-infrastructure-security/screenshots/vpn-proof.png" alt="Connectivity Verification"><span class="img-caption">Figure: VPN Client Accessing LAN1 Resources</span>
+                    </div>
+                </div>
+                </div>
+        </div>
+
+        <div id="wazuh" class="section">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Task 4: Security Information Management</h2>
+                    <p>Wazuh acts as the central SIEM. Agents are deployed on all critical servers (DC, Linux) and the firewall (syslog) to aggregate security events.</p>
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/wazuh-agents.png"><span class="img-caption">Active Agents List</span></div>
+                </div>
+                <div class="card">
+                    <h2>File Integrity Monitoring (FIM)</h2>
+                    <p>Real-time alerts for file modifications in sensitive areas (Roaming Profiles, Web Directory).</p>
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/fim-alert.png"><span class="img-caption">FIM Alert: File Added</span></div>
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/custom-alert.png"><span class="img-caption">Custom Rule Alert</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ids" class="section">
+            <div class="card full-width">
+                <h2>Task 5: Suricata IDS Integration</h2>
+                <p>Suricata is configured on pfSense to inspect traffic. Alerts are generated in EVE JSON format and forwarded to Wazuh for correlation and visualization.</p>
+                <div class="dashboard-grid">
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/suricata-status.png"><span class="img-caption">Interface Status: Running</span></div>
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/wazuh-pfsense-logs.png"><span class="img-caption">Wazuh Detection Alert</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="kali" class="section">
+            <div class="card full-width">
+                <h2>Task 6: Penetration Testing</h2>
+                <p>A controlled penetration test was performed using <strong>Nmap</strong> during the approved schedule window. The scan utilized Stealth SYN packets (<code>-sS</code>) and skipped ping (<code>-Pn</code>) to evade basic firewall blocks.</p>
+                <div class="code-block">Command: nmap -sS -Pn -T4 -p 1-65535 192.168.1.1</div>
+                <div class="dashboard-grid">
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/kali-penetration.png"><span class="img-caption">Nmap Scan Output</span></div>
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/kali-logs-suricata.png"><span class="img-caption">IDS Detection Alert</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="filtering" class="section">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h2>Task 9: Web Filtering</h2>
+                    <p>Access to social media is blocked for LAN2 clients during working hours using firewall aliases and schedules.</p>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/web-block.png"><span class="img-caption">Browser Block Page</span></div>
+                </div>
+                <div class="card">
+                    <h2>ARP Monitoring</h2>
+                    <p>ARP Watch is enabled to detect spoofing attempts and track new devices on the network.</p>
+                    <div class="upload-zone"><img src="project-1-siem-and-monitoring/screenshots/arp-watch.png"><span class="img-caption">ARP Settings</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="backup" class="section">
+            <div class="card full-width">
+                <h2>Task 10: Disaster Recovery</h2>
+                <p>Automated configuration backups are scheduled for pfSense. A restoration test was successfully performed to verify data integrity.</p>
+                <div class="dashboard-grid">
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/backup-config.png"><span class="img-caption">AutoConfigBackup Settings</span></div>
+                    <div class="upload-zone"><img src="project-2-infrastructure-security/screenshots/restore-success.png"><span class="img-caption">Restore Confirmation</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="summary" class="section">
+            <div class="card full-width">
+                <h2>Project Conclusion</h2>
+                <p>This project successfully demonstrates a secure, segmented enterprise network. All deliverables have been met, including:</p>
+                <ul style="margin-top:10px;">
+                    <li> Full segmentation between Server (LAN1) and Client (LAN2).</li>
+                    <li> Centralized authentication via Active Directory.</li>
+                    <li> Real-time security monitoring with Wazuh SIEM & Suricata.</li>
+                    <li> Automated policy enforcement via GPO.</li>
+                </ul>
+                <h2 style="margin-top:20px;">Lessons Learned</h2>
+                <p>Key takeaways include the importance of precise firewall rule ordering, the necessity of FIM for tracking unauthorized changes, and the effectiveness of centralized logging for correlating security events across different operating systems.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            const tabs = ['home','pfsense','windows','linux','vpn','wazuh','ids','kali','filtering','backup','summary'];
+            const idx = tabs.indexOf(tabId);
+            if(idx !== -1) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+        }
+    </script>
+</body>
+</html>
